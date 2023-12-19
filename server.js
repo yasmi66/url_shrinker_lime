@@ -170,6 +170,8 @@ app.post('/shortUrls/:id/delete', requireAuth, requireLinkOwner, async (req, res
     const deletedShortUrl = await shortUrl.deleteOne();
 
     if (deletedShortUrl) {
+      // Remove the deleted ShortUrl's ID from the user's shortUrls array
+      await User.findByIdAndUpdate(req.session.userId, { $pull: { shortUrls: shortUrl._id } });
       res.redirect('/');
     } else {
       res.status(500).json({ error: 'Failed to delete Short URL' });
