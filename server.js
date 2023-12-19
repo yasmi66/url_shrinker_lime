@@ -20,7 +20,7 @@ app.use(session({
   saveUninitialized: true,
 }));
 
-// Routes
+// USER ROUTES //
 app.get('/', async (req, res) => {
   try {
     const shortUrls = await ShortUrl.find();
@@ -156,6 +156,25 @@ app.get('/:shortUrl', async (req, res) => {
   shortUrl.save();
 
   res.redirect(shortUrl.full);
+});
+
+// Decode short URL
+app.get('/decode/:shortUrl', async (req, res) => {
+  try {
+    const shortUrl = await ShortUrl.findOne({ short: req.params.shortUrl });
+    if (!shortUrl) return res.sendStatus(404);
+
+    // Return details about the short URL
+    res.json({
+      full: shortUrl.full,
+      short: shortUrl.short,
+      clicks: shortUrl.clicks,
+      date: shortUrl.date,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
 });
 
 // Delete shortUrl associated with the user
