@@ -117,7 +117,7 @@ const requireLinkOwner = async (req, res, next) => {
     const shortUrl = await ShortUrl.findById(req.params.id);
 
     if (!shortUrl || shortUrl.user.toString() !== req.session.userId) {
-      return res.sendStatus(403); // Forbidden
+      return res.status(403).send('User is not authorized to delete this link');
     }
 
     next();
