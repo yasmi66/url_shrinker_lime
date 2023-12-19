@@ -141,7 +141,7 @@ app.post('/shortUrls', requireAuth, async (req, res) => {
     // Update the user's shortUrls array with the created shortUrl
     const user = await User.findByIdAndUpdate(userId, { $push: { shortUrls: shortUrl._id } }, { new: true });
 
-    res.redirect('/');
+    res.status(200).send(shortUrl)
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
@@ -178,7 +178,7 @@ app.get('/decode/:shortUrl', async (req, res) => {
 });
 
 // Delete shortUrl associated with the user
-app.post('/shortUrls/:id/delete', requireAuth, requireLinkOwner, async (req, res) => {
+app.delete('/shortUrls/:id/delete', requireAuth, requireLinkOwner, async (req, res) => {
   try {
     const shortUrl = await ShortUrl.findOne({ _id: req.params.id, user: req.session.userId });
 
