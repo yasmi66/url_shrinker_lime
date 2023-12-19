@@ -72,7 +72,7 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// Implement logout
+// Logout route
 app.get('/logout', (req, res) => {
   // Clear user session upon logout
   req.session.destroy((err) => {
@@ -127,14 +127,19 @@ const requireLinkOwner = async (req, res, next) => {
   }
 };
 
-// URL Routes
+// URL ROUTES //
+
+// Create new shortUrl associated with the user
 app.post('/shortUrls', requireAuth, async (req, res) => {
   try {
     // Get the user ID from the session
     const userId = req.session.userId;
 
     // Create a new ShortUrl associated with the user
-    await ShortUrl.create({ full: req.body.fullUrl, user: userId });
+    const shortUrl = await ShortUrl.create({ full: req.body.fullUrl, user: userId });
+
+    // Update the user's shortUrls array with the created shortUrl
+    const user = await User.findByIdAndUpdate(userId, { $push: { shortUrls: shortUrl._id } }, { new: true });
 
     res.redirect('/');
   } catch (error) {
@@ -153,7 +158,7 @@ app.get('/:shortUrl', async (req, res) => {
   res.redirect(shortUrl.full);
 });
 
-// Delete URL route
+// Delete shortUrl associated with the user
 app.post('/shortUrls/:id/delete', requireAuth, requireLinkOwner, async (req, res) => {
   try {
     const shortUrl = await ShortUrl.findOne({ _id: req.params.id, user: req.session.userId });
